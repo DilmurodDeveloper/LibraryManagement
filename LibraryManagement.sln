@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryManagement.Api", "Li
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryManagement.Api.Tests.Unit", "LibraryManagement.Api.Tests.Unit\LibraryManagement.Api.Tests.Unit.csproj", "{AF000EF4-2C94-4C07-B34B-A08A03D4853C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryManagement.Api.Infrastructure.Build", "LibraryManagement.Api.Infrastructure.Build\LibraryManagement.Api.Infrastructure.Build.csproj", "{3735E352-3056-4273-9D31-C8C689E08377}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{AF000EF4-2C94-4C07-B34B-A08A03D4853C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF000EF4-2C94-4C07-B34B-A08A03D4853C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF000EF4-2C94-4C07-B34B-A08A03D4853C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3735E352-3056-4273-9D31-C8C689E08377}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3735E352-3056-4273-9D31-C8C689E08377}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3735E352-3056-4273-9D31-C8C689E08377}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3735E352-3056-4273-9D31-C8C689E08377}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
