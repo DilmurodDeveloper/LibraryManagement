@@ -416,3 +416,4 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+/LibraryManagement.Api/appsettings.Development.json
