@@ -3,6 +3,8 @@
 // Free To Use To Build Reliable Library Management Solutions
 //-----------------------------------------------------------
 
+using LibraryManagement.Api.Models.Foundations.Readers;
+
 namespace LibraryManagement.Api.Models.Foundations.Books
 {
     public class Book
@@ -12,5 +14,6 @@ namespace LibraryManagement.Api.Models.Foundations.Books
         public string BookTitle { get; set; }
         public string Author { get; set; }
         public string Genre { get; set; }
+        public Reader Reader { get; set; }
     }
 }
