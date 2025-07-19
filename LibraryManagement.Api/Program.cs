@@ -3,6 +3,7 @@
 // Free To Use To Build Reliable Library Management Solutions
 //-----------------------------------------------------------
 
+using LibraryManagement.Api.Brokers.Storages;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,7 @@ var apiInfo = new OpenApiInfo
     Version = "v1"
 };
 
+builder.Services.AddDbContext<StorageBroker>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
