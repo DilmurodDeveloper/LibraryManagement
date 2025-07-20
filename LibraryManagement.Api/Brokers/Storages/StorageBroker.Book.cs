@@ -30,5 +30,8 @@ namespace LibraryManagement.Api.Brokers.Storages
 
             return await ValueTask.FromResult(readerWithBooks);
         }
+
+        public async ValueTask<Book> UpdateBookAsync(Book book) =>
+            await UpdateAsync(book);
     }
 }
