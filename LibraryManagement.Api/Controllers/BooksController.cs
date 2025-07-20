@@ -102,5 +102,38 @@ namespace LibraryManagement.Api.Controllers
                 return InternalServerError(bookServiceException.InnerException);
             }
         }
+
+        [HttpPut]
+        public async ValueTask<ActionResult<Book>> PutBookAsync(Book book)
+        {
+            try
+            {
+                Book modifyBook =
+                    await this.bookService.ModifyBookAsync(book);
+
+                return Ok(modifyBook);
+            }
+            catch (BookValidationException bookValidationException)
+                when (bookValidationException.InnerException is NotFoundBookException)
+            {
+                return NotFound(bookValidationException.InnerException);
+            }
+            catch (BookValidationException bookValidationException)
+            {
+                return BadRequest(bookValidationException.InnerException);
+            }
+            catch (BookDependencyValidationException bookDependencyValidationException)
+            {
+                return Conflict(bookDependencyValidationException.InnerException);
+            }
+            catch (BookDependencyException bookDependencyException)
+            {
+                return InternalServerError(bookDependencyException.InnerException);
+            }
+            catch (BookServiceException bookServiceException)
+            {
+                return InternalServerError(bookServiceException.InnerException);
+            }
+        }
     }
 }
