@@ -7,6 +7,7 @@ using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
 using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagement.Api.Services.Foundations.Books
 {
@@ -90,6 +91,18 @@ namespace LibraryManagement.Api.Services.Foundations.Books
                 this.loggingBroker.LogError(bookValidationException);
 
                 throw bookValidationException;
+            }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedBookException =
+                    new LockedBookException(dbUpdateConcurrencyException);
+
+                var bookDependencyValidationException =
+                    new BookDependencyValidationException(lockedBookException);
+
+                this.loggingBroker.LogError(bookDependencyValidationException);
+
+                throw bookDependencyValidationException;
             }
         }
     }
