@@ -40,12 +40,26 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             {
                 ValidateBookId(bookId);
 
+                Book maybeBook =
+                    await this.storageBroker.SelectBookByIdAsync(bookId);
+
+                ValidateStorageBook(maybeBook, bookId);
+
                 return await this.storageBroker.SelectBookByIdAsync(bookId);
             }
             catch (InvalidBookException invalidBookException)
             {
                 var bookValidationException =
                     new BookValidationException(invalidBookException);
+
+                this.loggingBroker.LogError(bookValidationException);
+
+                throw bookValidationException;
+            }
+            catch (NotFoundBookException notFoundBookException)
+            {
+                var bookValidationException =
+                    new BookValidationException(notFoundBookException);
 
                 this.loggingBroker.LogError(bookValidationException);
 
