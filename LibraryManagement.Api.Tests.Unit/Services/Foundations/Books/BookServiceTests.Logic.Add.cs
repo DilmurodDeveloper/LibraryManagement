@@ -4,6 +4,7 @@
 //-----------------------------------------------------------
 
 using FluentAssertions;
+using Force.DeepCloner;
 using LibraryManagement.Api.Models.Foundations.Books;
 using Moq;
 
@@ -18,7 +19,7 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Books
             Book randomBook = CreateRandomBook();
             Book inputBook = randomBook;
             Book storageBook = inputBook;
-            Book expectedBook = storageBook;
+            Book expectedBook = storageBook.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
                 broker.InsertBookAsync(inputBook))

@@ -22,7 +22,7 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<Book> AddBookAsync(Book book) =>
-            throw new NotImplementedException();
+        public async ValueTask<Book> AddBookAsync(Book book) =>
+            await this.storageBroker.InsertBookAsync(book);
     }
 }
