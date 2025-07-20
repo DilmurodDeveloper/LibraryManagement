@@ -10,5 +10,7 @@ namespace LibraryManagement.Api.Brokers.Storages
     public partial interface IStorageBroker
     {
         ValueTask<Book> InsertBookAsync(Book book);
+        IQueryable<Book> SelectAllBooks();
+        ValueTask<Book> SelectBookByIdAsync(Guid bookId);
     }
 }
