@@ -45,5 +45,8 @@ namespace LibraryManagement.Api.Services.Foundations.Books
 
             return maybeBook;
         });
+
+        public ValueTask<Book> ModifyBookAsync(Book book) =>
+            throw new NotImplementedException();
     }
 }
