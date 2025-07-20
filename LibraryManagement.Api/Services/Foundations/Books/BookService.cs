@@ -75,6 +75,18 @@ namespace LibraryManagement.Api.Services.Foundations.Books
 
                 throw bookDependencyValidationException;
             }
+            catch (Exception exception)
+            {
+                var failedBookServiceException =
+                    new FailedBookServiceException(exception);
+
+                var bookServiceException =
+                    new BookServiceException(failedBookServiceException);
+
+                this.loggingBroker.LogError(bookServiceException);
+
+                throw bookServiceException;
+            }
         }
     }
 }
