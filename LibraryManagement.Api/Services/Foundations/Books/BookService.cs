@@ -6,9 +6,6 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
-using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagement.Api.Services.Foundations.Books
 {
