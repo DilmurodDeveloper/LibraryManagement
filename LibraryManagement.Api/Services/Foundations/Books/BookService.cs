@@ -8,6 +8,7 @@ using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
 using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagement.Api.Services.Foundations.Books
 {
@@ -97,6 +98,18 @@ namespace LibraryManagement.Api.Services.Foundations.Books
                     new BookDependencyException(failedBookStorageException);
 
                 this.loggingBroker.LogCritical(bookDependencyException);
+
+                throw bookDependencyException;
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedBookStorageException =
+                    new FailedBookStorageException(dbUpdateException);
+
+                var bookDependencyException =
+                    new BookDependencyException(failedBookStorageException);
+
+                this.loggingBroker.LogError(bookDependencyException);
 
                 throw bookDependencyException;
             }
