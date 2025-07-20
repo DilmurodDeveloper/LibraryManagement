@@ -6,10 +6,11 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
+using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
 
 namespace LibraryManagement.Api.Services.Foundations.Books
 {
-    public class BookService : IBookService
+    public partial class BookService : IBookService
     {
         private readonly IStorageBroker storageBroker;
         private readonly ILoggingBroker loggingBroker;
@@ -22,7 +23,23 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<Book> AddBookAsync(Book book) =>
-            await this.storageBroker.InsertBookAsync(book);
+        public async ValueTask<Book> AddBookAsync(Book book)
+        {
+            try
+            {
+                ValidateBookNotNull(book);
+
+                return await this.storageBroker.InsertBookAsync(book);
+            }
+            catch (NullBookException nullBookException)
+            {
+                var bookValidationException =
+                    new BookValidationException(nullBookException);
+
+                this.loggingBroker.LogError(bookValidationException);
+
+                throw bookValidationException;
+            }
+        }
     }
 }
