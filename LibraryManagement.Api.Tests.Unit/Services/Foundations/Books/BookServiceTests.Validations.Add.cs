@@ -66,15 +66,15 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Books
 
             invalidBookException.AddData(
                 key: nameof(Book.BookTitle),
-                values: "Text is requierd");
+                values: "Text is required");
 
             invalidBookException.AddData(
                 key: nameof(Book.Author),
-                values: "Text is requierd");
+                values: "Text is required");
 
             invalidBookException.AddData(
                 key: nameof(Book.Genre),
-                values: "Text is requierd");
+                values: "Text is required");
 
 
             var expectedBookValidationException =

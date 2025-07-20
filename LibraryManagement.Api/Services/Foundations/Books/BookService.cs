@@ -27,7 +27,7 @@ namespace LibraryManagement.Api.Services.Foundations.Books
         {
             try
             {
-                ValidateBookNotNull(book);
+                ValidateBookOnAdd(book);
 
                 return await this.storageBroker.InsertBookAsync(book);
             }
@@ -35,6 +35,15 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             {
                 var bookValidationException =
                     new BookValidationException(nullBookException);
+
+                this.loggingBroker.LogError(bookValidationException);
+
+                throw bookValidationException;
+            }
+            catch (InvalidBookException invalidBookException)
+            {
+                var bookValidationException =
+                    new BookValidationException(invalidBookException);
 
                 this.loggingBroker.LogError(bookValidationException);
 
