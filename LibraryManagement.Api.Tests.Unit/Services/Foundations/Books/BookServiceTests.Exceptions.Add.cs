@@ -3,6 +3,7 @@
 // Free To Use To Build Reliable Library Management Solutions
 //-----------------------------------------------------------
 
+using EFxceptions.Models.Exceptions;
 using LibraryManagement.Api.Models.Foundations.Books;
 using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
 using Microsoft.Data.SqlClient;
@@ -44,6 +45,47 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Books
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogCritical(It.Is(SameExceptionAs(
                     expectedBookDependencyException))),
+                        Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyValidationOnAddIfDuplicateKeyErrorOccursAndLogItAsync()
+        {
+            // given
+            Book someBook = CreateRandomBook();
+            string someMessage = GetRandomString();
+
+            var duplicateKeyException =
+                new DuplicateKeyException(someMessage);
+
+            var alreadyExistsBookException =
+                new AlreadyExistsBookException(duplicateKeyException);
+
+            var expectedBookDependencyValidationException =
+                new BookDependencyValidationException(alreadyExistsBookException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.InsertBookAsync(someBook))
+                    .ThrowsAsync(duplicateKeyException);
+
+            // when
+            ValueTask<Book> addBookTask =
+                this.bookService.AddBookAsync(someBook);
+
+            // then
+            await Assert.ThrowsAsync<BookDependencyValidationException>(() =>
+                addBookTask.AsTask());
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertBookAsync(someBook),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedBookDependencyValidationException))),
                         Times.Once);
 
             this.storageBrokerMock.VerifyNoOtherCalls();
