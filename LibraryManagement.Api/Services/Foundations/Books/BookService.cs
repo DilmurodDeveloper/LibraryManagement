@@ -29,5 +29,8 @@ namespace LibraryManagement.Api.Services.Foundations.Books
 
             return await this.storageBroker.InsertBookAsync(book);
         });
+
+        public IQueryable<Book> RetrieveAllBooks() =>
+            throw new NotImplementedException();
     }
 }
