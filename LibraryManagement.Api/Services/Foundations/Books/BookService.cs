@@ -6,6 +6,7 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
+using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
 
 namespace LibraryManagement.Api.Services.Foundations.Books
 {
@@ -33,7 +34,23 @@ namespace LibraryManagement.Api.Services.Foundations.Books
         public IQueryable<Book> RetrieveAllBooks() =>
             TryCatch(() => this.storageBroker.SelectAllBooks());
 
-        public async ValueTask<Book> RetrieveBookByIdAsync(Guid bookId) =>
-            await this.storageBroker.SelectBookByIdAsync(bookId);
+        public async ValueTask<Book> RetrieveBookByIdAsync(Guid bookId)
+        {
+            try
+            {
+                ValidateBookId(bookId);
+
+                return await this.storageBroker.SelectBookByIdAsync(bookId);
+            }
+            catch (InvalidBookException invalidBookException)
+            {
+                var bookValidationException =
+                    new BookValidationException(invalidBookException);
+
+                this.loggingBroker.LogError(bookValidationException);
+
+                throw bookValidationException;
+            }
+        }
     }
 }

@@ -20,6 +20,10 @@ namespace LibraryManagement.Api.Services.Foundations.Books
                 (Rule: IsInvalid(book.Author), Parameter: nameof(Book.Author)),
                 (Rule: IsInvalid(book.Genre), Parameter: nameof(Book.Genre)));
         }
+
+        private void ValidateBookId(Guid bookId) =>
+            Validate((Rule: IsInvalid(bookId), Parameter: nameof(Book.BookId)));
+
         private void ValidateBookNotNull(Book book)
         {
             if (book is null)
