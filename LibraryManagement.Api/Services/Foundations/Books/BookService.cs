@@ -51,7 +51,7 @@ namespace LibraryManagement.Api.Services.Foundations.Books
         {
             try
             {
-                ValidateBookNotNull(book);
+                ValidateBookOnModify(book);
 
                 Book maybeBook =
                     await this.storageBroker.SelectBookByIdAsync(book.BookId);
@@ -62,6 +62,15 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             {
                 var bookValidationException =
                     new BookValidationException(nullBookException);
+
+                this.loggingBroker.LogError(bookValidationException);
+
+                throw bookValidationException;
+            }
+            catch (InvalidBookException invalidBookException)
+            {
+                var bookValidationException =
+                    new BookValidationException(invalidBookException);
 
                 this.loggingBroker.LogError(bookValidationException);
 
