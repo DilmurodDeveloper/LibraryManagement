@@ -6,8 +6,6 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
-using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
-using Microsoft.Data.SqlClient;
 
 namespace LibraryManagement.Api.Services.Foundations.Books
 {
@@ -35,61 +33,17 @@ namespace LibraryManagement.Api.Services.Foundations.Books
         public IQueryable<Book> RetrieveAllBooks() =>
             TryCatch(() => this.storageBroker.SelectAllBooks());
 
-        public async ValueTask<Book> RetrieveBookByIdAsync(Guid bookId)
+        public ValueTask<Book> RetrieveBookByIdAsync(Guid bookId) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateBookId(bookId);
+            ValidateBookId(bookId);
 
-                Book maybeBook =
-                    await this.storageBroker.SelectBookByIdAsync(bookId);
+            Book maybeBook =
+                await this.storageBroker.SelectBookByIdAsync(bookId);
 
-                ValidateStorageBook(maybeBook, bookId);
+            ValidateStorageBook(maybeBook, bookId);
 
-                return await this.storageBroker.SelectBookByIdAsync(bookId);
-            }
-            catch (InvalidBookException invalidBookException)
-            {
-                var bookValidationException =
-                    new BookValidationException(invalidBookException);
-
-                this.loggingBroker.LogError(bookValidationException);
-
-                throw bookValidationException;
-            }
-            catch (NotFoundBookException notFoundBookException)
-            {
-                var bookValidationException =
-                    new BookValidationException(notFoundBookException);
-
-                this.loggingBroker.LogError(bookValidationException);
-
-                throw bookValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedBookStorageException =
-                    new FailedBookStorageException(sqlException);
-
-                var bookDependencyException =
-                    new BookDependencyException(failedBookStorageException);
-
-                this.loggingBroker.LogCritical(bookDependencyException);
-
-                throw bookDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedBookServiceException =
-                    new FailedBookServiceException(exception);
-
-                var bookServiceException =
-                    new BookServiceException(failedBookServiceException);
-
-                this.loggingBroker.LogError(bookServiceException);
-
-                throw bookServiceException;
-            }
-        }
+            return maybeBook;
+        });
     }
 }
