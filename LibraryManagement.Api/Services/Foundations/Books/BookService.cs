@@ -32,5 +32,8 @@ namespace LibraryManagement.Api.Services.Foundations.Books
 
         public IQueryable<Book> RetrieveAllBooks() =>
             TryCatch(() => this.storageBroker.SelectAllBooks());
+
+        public ValueTask<Book> RetrieveBookByIdAsync(Guid bookId) =>
+            throw new NotImplementedException();
     }
 }
