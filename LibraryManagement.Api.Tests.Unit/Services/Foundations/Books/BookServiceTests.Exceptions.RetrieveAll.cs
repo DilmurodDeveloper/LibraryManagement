@@ -51,5 +51,45 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Books
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public void ShouldThrowServiceExceptionOnRetrieveAllIfServiceErrorOccursAndLogItAsync()
+        {
+            // given
+            string exceptionMessage = GetRandomString();
+            var serverException = new Exception(exceptionMessage);
+
+            var failedBookServiceException =
+                new FailedBookServiceException(serverException);
+
+            var expectedBookServiceException =
+                new BookServiceException(failedBookServiceException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectAllBooks()).Throws(serverException);
+
+            // when
+            Action retrieveAllBookActions = () =>
+                this.bookService.RetrieveAllBooks();
+
+            BookServiceException actualBookServiceException =
+                Assert.Throws<BookServiceException>(retrieveAllBookActions);
+
+            //then
+            actualBookServiceException.Should()
+                .BeEquivalentTo(expectedBookServiceException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectAllBooks(),
+                    Times.Once());
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                expectedBookServiceException))),
+                    Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
