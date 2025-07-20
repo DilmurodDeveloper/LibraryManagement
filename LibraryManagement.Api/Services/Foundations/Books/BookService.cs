@@ -59,7 +59,12 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             return await this.storageBroker.UpdateBookAsync(book);
         });
 
-        public ValueTask<Book> RemoveBookByIdAsync(Guid bookId) =>
-            throw new NotImplementedException();
+        public async ValueTask<Book> RemoveBookByIdAsync(Guid bookId)
+        {
+            Book maybeBook =
+                await this.storageBroker.SelectBookByIdAsync(bookId);
+
+            return await this.storageBroker.DeleteBookAsync(maybeBook);
+        }
     }
 }
