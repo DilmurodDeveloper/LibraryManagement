@@ -3,13 +3,12 @@
 // Free To Use To Build Reliable Library Management Solutions
 //-----------------------------------------------------------
 
-using LibraryManagement.Api.Models.Foundations.ReaderBooks;
-using Microsoft.EntityFrameworkCore;
+using LibraryManagement.Api.Models.Foundations.Books;
 
 namespace LibraryManagement.Api.Brokers.Storages
 {
-    public partial class StorageBroker
+    public partial interface IStorageBroker
     {
-        public DbSet<ReaderBook> ReaderBooks { get; set; }
+        ValueTask<Book> InsertBookAsync(Book book);
     }
 }
