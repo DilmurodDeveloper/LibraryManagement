@@ -6,6 +6,7 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
+using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
 
 namespace LibraryManagement.Api.Services.Foundations.Books
 {
@@ -48,10 +49,24 @@ namespace LibraryManagement.Api.Services.Foundations.Books
 
         public async ValueTask<Book> ModifyBookAsync(Book book)
         {
-            Book maybeBook =
-                await this.storageBroker.SelectBookByIdAsync(book.BookId);
+            try
+            {
+                ValidateBookNotNull(book);
 
-            return await this.storageBroker.UpdateBookAsync(book);
+                Book maybeBook =
+                    await this.storageBroker.SelectBookByIdAsync(book.BookId);
+
+                return await this.storageBroker.UpdateBookAsync(book);
+            }
+            catch (NullBookException nullBookException)
+            {
+                var bookValidationException =
+                    new BookValidationException(nullBookException);
+
+                this.loggingBroker.LogError(bookValidationException);
+
+                throw bookValidationException;
+            }
         }
     }
 }
