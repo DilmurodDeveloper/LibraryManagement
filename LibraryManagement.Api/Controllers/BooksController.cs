@@ -53,5 +53,24 @@ namespace LibraryManagement.Api.Controllers
                 return InternalServerError(bookServiceException.InnerException);
             }
         }
+
+        [HttpGet("all")]
+        public ActionResult<IQueryable<Book>> GetAllBooks()
+        {
+            try
+            {
+                IQueryable<Book> allBooks = this.bookService.RetrieveAllBooks();
+
+                return Ok(allBooks);
+            }
+            catch (BookDependencyException bookDependencyException)
+            {
+                return InternalServerError(bookDependencyException.InnerException);
+            }
+            catch (BookServiceException bookServiceException)
+            {
+                return InternalServerError(bookServiceException.InnerException);
+            }
+        }
     }
 }
