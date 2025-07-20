@@ -135,5 +135,43 @@ namespace LibraryManagement.Api.Controllers
                 return InternalServerError(bookServiceException.InnerException);
             }
         }
+
+        [HttpDelete]
+        public async ValueTask<ActionResult<Book>> DeleteBookAsync(Guid bookId)
+        {
+            try
+            {
+                Book deleteBook =
+                    await this.bookService.RemoveBookByIdAsync(bookId);
+
+                return Ok(deleteBook);
+            }
+            catch (BookValidationException bookValidationException)
+                when (bookValidationException.InnerException is NotFoundBookException)
+            {
+                return NotFound(bookValidationException.InnerException);
+            }
+            catch (BookValidationException bookValidationException)
+            {
+                return BadRequest(bookValidationException.InnerException);
+            }
+            catch (BookDependencyValidationException bookDependencyValidationException)
+                when (bookDependencyValidationException.InnerException is LockedBookException)
+            {
+                return Locked(bookDependencyValidationException.InnerException);
+            }
+            catch (BookDependencyValidationException bookDependencyValidationException)
+            {
+                return BadRequest(bookDependencyValidationException.InnerException);
+            }
+            catch (BookDependencyException bookDependencyException)
+            {
+                return InternalServerError(bookDependencyException.InnerException);
+            }
+            catch (BookServiceException bookServiceException)
+            {
+                return InternalServerError(bookServiceException.InnerException);
+            }
+        }
     }
 }
