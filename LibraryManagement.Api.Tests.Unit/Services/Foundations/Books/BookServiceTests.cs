@@ -3,12 +3,14 @@
 // Free To Use To Build Reliable Library Management Solutions
 //-----------------------------------------------------------
 
+using System.Linq.Expressions;
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
 using LibraryManagement.Api.Services.Foundations.Books;
 using Moq;
 using Tynamix.ObjectFiller;
+using Xeptions;
 
 namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Books
 {
@@ -32,6 +34,9 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Books
 
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: new DateTime()).GetValue();
+
+        private Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
+            actualException => actualException.SameExceptionAs(expectedException);
 
         private static Filler<Book> CreateBookFiller(DateTimeOffset date)
         {
