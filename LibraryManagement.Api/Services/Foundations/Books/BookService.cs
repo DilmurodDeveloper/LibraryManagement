@@ -62,73 +62,17 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             return await this.storageBroker.UpdateBookAsync(book);
         });
 
-        public async ValueTask<Book> RemoveBookByIdAsync(Guid bookId)
+        public ValueTask<Book> RemoveBookByIdAsync(Guid bookId) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateBookId(bookId);
+            ValidateBookId(bookId);
 
-                Book maybeBook =
-                    await this.storageBroker.SelectBookByIdAsync(bookId);
+            Book maybeBook =
+                await this.storageBroker.SelectBookByIdAsync(bookId);
 
-                ValidateStorageBook(maybeBook, bookId);
+            ValidateStorageBook(maybeBook, bookId);
 
-                return await this.storageBroker.DeleteBookAsync(maybeBook);
-            }
-            catch (InvalidBookException invalidBookException)
-            {
-                var bookValidationException =
-                    new BookValidationException(invalidBookException);
-
-                this.loggingBroker.LogError(bookValidationException);
-
-                throw bookValidationException;
-            }
-            catch (NotFoundBookException notFoundBookException)
-            {
-                var bookValidationException =
-                    new BookValidationException(notFoundBookException);
-
-                this.loggingBroker.LogError(bookValidationException);
-
-                throw bookValidationException;
-            }
-            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
-            {
-                var lockedBookException =
-                    new LockedBookException(dbUpdateConcurrencyException);
-
-                var bookDependencyValidationException =
-                    new BookDependencyValidationException(lockedBookException);
-
-                this.loggingBroker.LogError(bookDependencyValidationException);
-
-                throw bookDependencyValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedBookStorageException =
-                    new FailedBookStorageException(sqlException);
-
-                var bookDependencyException =
-                    new BookDependencyException(failedBookStorageException);
-
-                this.loggingBroker.LogCritical(bookDependencyException);
-
-                throw bookDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedBookServiceException =
-                    new FailedBookServiceException(exception);
-
-                var bookServiceException =
-                    new BookServiceException(failedBookServiceException);
-
-                this.loggingBroker.LogError(bookServiceException);
-
-                throw bookServiceException;
-            }
-        }
+            return await this.storageBroker.DeleteBookAsync(maybeBook);
+        });
     }
 }
