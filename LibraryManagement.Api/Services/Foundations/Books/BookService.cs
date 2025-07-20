@@ -101,6 +101,18 @@ namespace LibraryManagement.Api.Services.Foundations.Books
 
                 throw bookDependencyException;
             }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedBookException =
+                    new LockedBookException(dbUpdateConcurrencyException);
+
+                var bookDependencyValidationException =
+                    new BookDependencyValidationException(lockedBookException);
+
+                this.loggingBroker.LogError(bookDependencyValidationException);
+
+                throw bookDependencyValidationException;
+            }
             catch (DbUpdateException dbUpdateException)
             {
                 var failedBookStorageException =
