@@ -37,6 +37,15 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Books
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: new DateTime()).GetValue();
 
+        private IQueryable<Book> CreateRandomBooks()
+        {
+            return CreateBookFiller(GetRandomDateTimeOffset())
+                .Create(count: GetRandomNumber()).AsQueryable();
+        }
+
+        private static int GetRandomNumber() =>
+            new IntRange(2, 9).GetValue();
+
         private static SqlException GetSqlError() =>
             (SqlException)RuntimeHelpers.GetUninitializedObject(typeof(SqlException));
 

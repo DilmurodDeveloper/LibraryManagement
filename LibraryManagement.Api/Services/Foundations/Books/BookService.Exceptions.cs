@@ -14,6 +14,7 @@ namespace LibraryManagement.Api.Services.Foundations.Books
     public partial class BookService
     {
         private delegate ValueTask<Book> ReturningBookFunction();
+        private delegate IQueryable<Book> ReturningBooksFunction();
 
         private async ValueTask<Book> TryCatch(ReturningBookFunction returningBookFunction)
         {
@@ -29,6 +30,10 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             {
                 throw CreateAndLogValidationException(invalidBookException);
             }
+            catch (NotFoundBookException notFoundBookException)
+            {
+                throw CreateAndLogValidationException(notFoundBookException);
+            }
             catch (SqlException sqlException)
             {
                 var failedBookStorageException =
@@ -42,6 +47,28 @@ namespace LibraryManagement.Api.Services.Foundations.Books
                     new AlreadyExistsBookException(duplicateKeyException);
 
                 throw CreateAndLogDependencyValidationException(alreadyExistsBookException);
+            }
+            catch (Exception exception)
+            {
+                var failedBookServiceException =
+                    new FailedBookServiceException(exception);
+
+                throw CreateAndLogServiceException(failedBookServiceException);
+            }
+        }
+
+        private IQueryable<Book> TryCatch(ReturningBooksFunction returningBooksFunction)
+        {
+            try
+            {
+                return returningBooksFunction();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedBookStorageException =
+                    new FailedBookStorageException(sqlException);
+
+                throw CreateAndLogCriticalDependencyException(failedBookStorageException);
             }
             catch (Exception exception)
             {

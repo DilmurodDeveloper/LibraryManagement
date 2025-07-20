@@ -10,5 +10,7 @@ namespace LibraryManagement.Api.Services.Foundations.Books
     public interface IBookService
     {
         ValueTask<Book> AddBookAsync(Book book);
+        IQueryable<Book> RetrieveAllBooks();
+        ValueTask<Book> RetrieveBookByIdAsync(Guid bookId);
     }
 }

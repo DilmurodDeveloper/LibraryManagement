@@ -29,5 +29,21 @@ namespace LibraryManagement.Api.Services.Foundations.Books
 
             return await this.storageBroker.InsertBookAsync(book);
         });
+
+        public IQueryable<Book> RetrieveAllBooks() =>
+            TryCatch(() => this.storageBroker.SelectAllBooks());
+
+        public ValueTask<Book> RetrieveBookByIdAsync(Guid bookId) =>
+        TryCatch(async () =>
+        {
+            ValidateBookId(bookId);
+
+            Book maybeBook =
+                await this.storageBroker.SelectBookByIdAsync(bookId);
+
+            ValidateStorageBook(maybeBook, bookId);
+
+            return maybeBook;
+        });
     }
 }
