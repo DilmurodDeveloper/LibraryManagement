@@ -6,6 +6,7 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
+using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
 
 namespace LibraryManagement.Api.Services.Foundations.Books
 {
@@ -61,10 +62,24 @@ namespace LibraryManagement.Api.Services.Foundations.Books
 
         public async ValueTask<Book> RemoveBookByIdAsync(Guid bookId)
         {
-            Book maybeBook =
-                await this.storageBroker.SelectBookByIdAsync(bookId);
+            try
+            {
+                ValidateBookId(bookId);
 
-            return await this.storageBroker.DeleteBookAsync(maybeBook);
+                Book maybeBook =
+                    await this.storageBroker.SelectBookByIdAsync(bookId);
+
+                return await this.storageBroker.DeleteBookAsync(maybeBook);
+            }
+            catch (InvalidBookException invalidBookException)
+            {
+                var bookValidationException =
+                    new BookValidationException(invalidBookException);
+
+                this.loggingBroker.LogError(bookValidationException);
+
+                throw bookValidationException;
+            }
         }
     }
 }
