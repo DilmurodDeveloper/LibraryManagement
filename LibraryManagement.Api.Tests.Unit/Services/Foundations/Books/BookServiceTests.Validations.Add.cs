@@ -61,10 +61,6 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Books
                 values: "Id is required");
 
             invalidBookException.AddData(
-                key: nameof(Book.ReaderId),
-                values: "Id is required");
-
-            invalidBookException.AddData(
                 key: nameof(Book.BookTitle),
                 values: "Text is required");
 

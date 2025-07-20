@@ -3,7 +3,9 @@
 // Free To Use To Build Reliable Library Management Solutions
 //-----------------------------------------------------------
 
+using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
+using LibraryManagement.Api.Services.Foundations.Books;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,9 @@ var apiInfo = new OpenApiInfo
 };
 
 builder.Services.AddDbContext<StorageBroker>();
+builder.Services.AddTransient<IStorageBroker, StorageBroker>();
+builder.Services.AddTransient<ILoggingBroker, LoggingBroker>();
+builder.Services.AddTransient<IBookService, BookService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 

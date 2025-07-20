@@ -16,7 +16,6 @@ namespace LibraryManagement.Api.Services.Foundations.Books
 
             Validate(
                 (Rule: IsInvalid(book.BookId), Parameter: nameof(Book.BookId)),
-                (Rule: IsInvalid(book.ReaderId), Parameter: nameof(Book.ReaderId)),
                 (Rule: IsInvalid(book.BookTitle), Parameter: nameof(Book.BookTitle)),
                 (Rule: IsInvalid(book.Author), Parameter: nameof(Book.Author)),
                 (Rule: IsInvalid(book.Genre), Parameter: nameof(Book.Genre)));

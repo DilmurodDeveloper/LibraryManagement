@@ -4,7 +4,6 @@
 //-----------------------------------------------------------
 
 using EFxceptions;
-using LibraryManagement.Api.Models.Foundations.Books;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagement.Api.Brokers.Storages
@@ -34,16 +33,6 @@ namespace LibraryManagement.Api.Brokers.Storages
                 this.configuration.GetConnectionString(name: "DefaultConnection");
 
             optionsBuilder.UseSqlServer(connectionString);
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Book>()
-                .HasOne(b => b.Reader)
-                .WithMany(r => r.Books)
-                .HasForeignKey(b => b.ReaderId);
-
-            base.OnModelCreating(modelBuilder);
         }
 
         public override void Dispose() { }
