@@ -31,6 +31,6 @@ namespace LibraryManagement.Api.Services.Foundations.Books
         });
 
         public IQueryable<Book> RetrieveAllBooks() =>
-            throw new NotImplementedException();
+            this.storageBroker.SelectAllBooks();
     }
 }
