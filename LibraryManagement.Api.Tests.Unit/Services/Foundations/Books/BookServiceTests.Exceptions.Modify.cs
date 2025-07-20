@@ -157,5 +157,53 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Books
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnModifyIfDatabaseUpdateErrorOccursAndLogItAsync()
+        {
+            // given
+            Book randomBook = CreateRandomBook();
+            Book someBook = randomBook;
+            Guid bookId = someBook.BookId;
+            var serviceException = new Exception();
+
+            var failedBookServiceException =
+                new FailedBookServiceException(serviceException);
+
+            var expectedBookServiceException =
+                new BookServiceException(failedBookServiceException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectBookByIdAsync(bookId))
+                    .Throws(serviceException);
+
+            // when
+            ValueTask<Book> modifyBookTask =
+                this.bookService.ModifyBookAsync(someBook);
+
+            BookServiceException actualBookServiceException =
+                await Assert.ThrowsAsync<BookServiceException>(() =>
+                    modifyBookTask.AsTask());
+
+            // then
+            actualBookServiceException.Should()
+                .BeEquivalentTo(expectedBookServiceException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedBookServiceException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectBookByIdAsync(bookId),
+                    Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.UpdateBookAsync(someBook),
+                    Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
