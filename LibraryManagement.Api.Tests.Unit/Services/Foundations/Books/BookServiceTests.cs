@@ -4,10 +4,12 @@
 //-----------------------------------------------------------
 
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
 using LibraryManagement.Api.Services.Foundations.Books;
+using Microsoft.Data.SqlClient;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -34,6 +36,9 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Books
 
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: new DateTime()).GetValue();
+
+        private static SqlException GetSqlError() =>
+            (SqlException)RuntimeHelpers.GetUninitializedObject(typeof(SqlException));
 
         private Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
