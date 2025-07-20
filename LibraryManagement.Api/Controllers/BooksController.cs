@@ -72,5 +72,35 @@ namespace LibraryManagement.Api.Controllers
                 return InternalServerError(bookServiceException.InnerException);
             }
         }
+
+        [HttpGet("{bookId}")]
+        public async ValueTask<ActionResult<Book>> GetBookByIdAsync(Guid bookId)
+        {
+            try
+            {
+                Book maybeBook =
+                    await this.bookService.RetrieveBookByIdAsync(bookId);
+
+                return Ok(maybeBook);
+            }
+            catch (BookValidationException bookValidationException)
+                when (bookValidationException.InnerException is InvalidBookException)
+            {
+                return BadRequest(bookValidationException.InnerException);
+            }
+            catch (BookValidationException bookValidationException)
+                when (bookValidationException.InnerException is NotFoundBookException)
+            {
+                return NotFound(bookValidationException.InnerException);
+            }
+            catch (BookDependencyException bookDependencyException)
+            {
+                return InternalServerError(bookDependencyException.InnerException);
+            }
+            catch (BookServiceException bookServiceException)
+            {
+                return InternalServerError(bookServiceException.InnerException);
+            }
+        }
     }
 }
