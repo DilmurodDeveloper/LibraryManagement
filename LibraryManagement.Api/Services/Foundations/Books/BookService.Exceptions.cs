@@ -7,6 +7,7 @@ using EFxceptions.Models.Exceptions;
 using LibraryManagement.Api.Models.Foundations.Books;
 using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Xeptions;
 
 namespace LibraryManagement.Api.Services.Foundations.Books
@@ -33,6 +34,20 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             catch (NotFoundBookException notFoundBookException)
             {
                 throw CreateAndLogValidationException(notFoundBookException);
+            }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedBookException =
+                    new LockedBookException(dbUpdateConcurrencyException);
+
+                throw CreateAndLogDependencyValidationException(lockedBookException);
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedBookStorageException =
+                    new FailedBookStorageException(dbUpdateException);
+
+                throw CreateAndLogDependencyException(failedBookStorageException);
             }
             catch (SqlException sqlException)
             {
@@ -117,6 +132,16 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             this.loggingBroker.LogError(bookServiceException);
 
             return bookServiceException;
+        }
+
+        private BookDependencyException CreateAndLogDependencyException(Xeption exception)
+        {
+            var bookDependencyException =
+                new BookDependencyException(exception);
+
+            this.loggingBroker.LogError(bookDependencyException);
+
+            return bookDependencyException;
         }
     }
 }
