@@ -32,6 +32,17 @@ namespace LibraryManagement.Api.Services.Foundations.Books
                 (Rule: IsInvalid(book.Genre), Parameter: nameof(Book.Genre)));
         }
 
+        private static void ValidateAgainstStorageBookOnModify(Book book, Book storageBook)
+        {
+            ValidateStorageBook(storageBook, book.BookId);
+
+            Validate(
+                (Rule: IsInvalid(book.BookId), Parameter: nameof(Book.BookId)),
+                (Rule: IsInvalid(book.BookTitle), Parameter: nameof(Book.BookTitle)),
+                (Rule: IsInvalid(book.Author), Parameter: nameof(Book.Author)),
+                (Rule: IsInvalid(book.Genre), Parameter: nameof(Book.Genre)));
+        }
+
         private void ValidateBookId(Guid bookId) =>
             Validate((Rule: IsInvalid(bookId), Parameter: nameof(Book.BookId)));
 
