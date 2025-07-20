@@ -6,9 +6,6 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Books;
-using LibraryManagement.Api.Models.Foundations.Books.Exceptions;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagement.Api.Services.Foundations.Books
 {
@@ -49,94 +46,17 @@ namespace LibraryManagement.Api.Services.Foundations.Books
             return maybeBook;
         });
 
-        public async ValueTask<Book> ModifyBookAsync(Book book)
+        public ValueTask<Book> ModifyBookAsync(Book book) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateBookOnModify(book);
+            ValidateBookOnModify(book);
 
-                Book maybeBook =
-                    await this.storageBroker.SelectBookByIdAsync(book.BookId);
+            Book maybeBook =
+                await this.storageBroker.SelectBookByIdAsync(book.BookId);
 
-                ValidateAgainstStorageBookOnModify(book, maybeBook);
+            ValidateAgainstStorageBookOnModify(book, maybeBook);
 
-                return await this.storageBroker.UpdateBookAsync(book);
-            }
-            catch (NullBookException nullBookException)
-            {
-                var bookValidationException =
-                    new BookValidationException(nullBookException);
-
-                this.loggingBroker.LogError(bookValidationException);
-
-                throw bookValidationException;
-            }
-            catch (InvalidBookException invalidBookException)
-            {
-                var bookValidationException =
-                    new BookValidationException(invalidBookException);
-
-                this.loggingBroker.LogError(bookValidationException);
-
-                throw bookValidationException;
-            }
-            catch (NotFoundBookException notFoundBookException)
-            {
-                var bookValidationException =
-                    new BookValidationException(notFoundBookException);
-
-                this.loggingBroker.LogError(bookValidationException);
-
-                throw bookValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedBookStorageException =
-                    new FailedBookStorageException(sqlException);
-
-                var bookDependencyException =
-                    new BookDependencyException(failedBookStorageException);
-
-                this.loggingBroker.LogCritical(bookDependencyException);
-
-                throw bookDependencyException;
-            }
-            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
-            {
-                var lockedBookException =
-                    new LockedBookException(dbUpdateConcurrencyException);
-
-                var bookDependencyValidationException =
-                    new BookDependencyValidationException(lockedBookException);
-
-                this.loggingBroker.LogError(bookDependencyValidationException);
-
-                throw bookDependencyValidationException;
-            }
-            catch (DbUpdateException dbUpdateException)
-            {
-                var failedBookStorageException =
-                    new FailedBookStorageException(dbUpdateException);
-
-                var bookDependencyException =
-                    new BookDependencyException(failedBookStorageException);
-
-                this.loggingBroker.LogError(bookDependencyException);
-
-                throw bookDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedBookServiceException =
-                    new FailedBookServiceException(exception);
-
-                var bookServiceException =
-                    new BookServiceException(failedBookServiceException);
-
-                this.loggingBroker.LogError(bookServiceException);
-
-                throw bookServiceException;
-            }
-        }
+            return await this.storageBroker.UpdateBookAsync(book);
+        });
     }
 }
