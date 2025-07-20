@@ -13,5 +13,6 @@ namespace LibraryManagement.Api.Brokers.Storages
         IQueryable<Book> SelectAllBooks();
         ValueTask<Book> SelectBookByIdAsync(Guid bookId);
         ValueTask<Book> UpdateBookAsync(Book book);
+        ValueTask<Book> DeleteBookAsync(Book book);
     }
 }
