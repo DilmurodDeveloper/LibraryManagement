@@ -91,5 +91,43 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Readers
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnAddIfServiceErrorOccursAndLogItAsync()
+        {
+            // given
+            Reader someReader = CreateRandomReader();
+            var serviceException = new Exception();
+
+            var failedReaderServiceException =
+                new FailedReaderServiceException(serviceException);
+
+            var expectedReaderServiceException =
+                new ReaderServiceException(failedReaderServiceException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.InsertReaderAsync(someReader))
+                    .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<Reader> addReaderTask =
+                this.readerService.AddReaderAsync(someReader);
+
+            // then
+            await Assert.ThrowsAsync<ReaderServiceException>(() =>
+                addReaderTask.AsTask());
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertReaderAsync(someReader),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedReaderServiceException))),
+                        Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
