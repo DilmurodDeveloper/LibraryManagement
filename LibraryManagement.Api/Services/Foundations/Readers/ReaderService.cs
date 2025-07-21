@@ -56,6 +56,8 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
                 Reader maybeReader =
                     await this.storageBroker.SelectReaderByIdAsync(reader.ReaderId);
 
+                ValidateAgainstStorageReaderOnModify(reader, maybeReader);
+
                 return await this.storageBroker.UpdateReaderAsync(reader);
             }
             catch (NullReaderException nullReaderException)
@@ -71,6 +73,15 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
             {
                 var readerValidationException =
                     new ReaderValidationException(invalidReaderException);
+
+                this.loggingBroker.LogError(readerValidationException);
+
+                throw readerValidationException;
+            }
+            catch (NotFoundReaderException notFoundReaderException)
+            {
+                var readerValidationException =
+                    new ReaderValidationException(notFoundReaderException);
 
                 this.loggingBroker.LogError(readerValidationException);
 

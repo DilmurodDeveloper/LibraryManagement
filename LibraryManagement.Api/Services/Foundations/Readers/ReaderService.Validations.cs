@@ -32,6 +32,17 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
                 (Rule: IsInvalid(reader.DateOfBirth), Parameter: nameof(Reader.DateOfBirth)));
         }
 
+        private static void ValidateAgainstStorageReaderOnModify(Reader reader, Reader storageReader)
+        {
+            ValidateStorageReader(storageReader, reader.ReaderId);
+
+            Validate(
+                (Rule: IsInvalid(reader.ReaderId), Parameter: nameof(Reader.ReaderId)),
+                (Rule: IsInvalid(reader.FirstName), Parameter: nameof(Reader.FirstName)),
+                (Rule: IsInvalid(reader.LastName), Parameter: nameof(Reader.LastName)),
+                (Rule: IsInvalid(reader.DateOfBirth), Parameter: nameof(Reader.DateOfBirth)));
+        }
+
         private static void ValidateReaderNotNull(Reader reader)
         {
             if (reader is null)
