@@ -45,5 +45,18 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
 
             return maybeReader;
         });
+
+        public ValueTask<Reader> ModifyReaderAsync(Reader reader) =>
+        TryCatch(async () =>
+        {
+            ValidateReaderOnModify(reader);
+
+            Reader maybeReader =
+                await this.storageBroker.SelectReaderByIdAsync(reader.ReaderId);
+
+            ValidateAgainstStorageReaderOnModify(reader, maybeReader);
+
+            return await this.storageBroker.UpdateReaderAsync(reader);
+        });
     }
 }
