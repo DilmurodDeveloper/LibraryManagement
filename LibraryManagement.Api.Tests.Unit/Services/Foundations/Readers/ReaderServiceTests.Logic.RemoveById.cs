@@ -4,6 +4,7 @@
 //-----------------------------------------------------------
 
 using FluentAssertions;
+using Force.DeepCloner;
 using LibraryManagement.Api.Models.Foundations.Readers;
 using Moq;
 
@@ -21,7 +22,7 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Readers
             Reader storageReader = randomReader;
             Reader expectedInputReader = storageReader;
             Reader deletedReader = expectedInputReader;
-            Reader expectedReader = deletedReader;
+            Reader expectedReader = deletedReader.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectReaderByIdAsync(inputReaderId))
