@@ -101,6 +101,18 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
 
                 throw readerDependencyException;
             }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedReaderException =
+                    new LockedReaderException(dbUpdateConcurrencyException);
+
+                var readerDependencyValidationException =
+                    new ReaderDependencyValidationException(lockedReaderException);
+
+                this.loggingBroker.LogError(readerDependencyValidationException);
+
+                throw readerDependencyValidationException;
+            }
             catch (DbUpdateException dbUpdateException)
             {
                 var failedReaderStorageException =
