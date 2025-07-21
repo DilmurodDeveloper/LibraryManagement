@@ -165,7 +165,7 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Readers
             Reader randomReader = CreateRandomReader();
             Reader someReader = randomReader;
             Guid readerId = someReader.ReaderId;
-            Exception serviceException = new Exception();
+            var serviceException = new Exception();
 
             var failedReaderServiceException =
                 new FailedReaderServiceException(serviceException);
