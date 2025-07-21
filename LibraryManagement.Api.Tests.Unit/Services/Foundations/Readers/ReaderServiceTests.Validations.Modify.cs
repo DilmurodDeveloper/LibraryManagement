@@ -105,5 +105,52 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Readers
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnModifyIfReaderDoesNotExistAndLogItAsync()
+        {
+            // given
+            Reader randomReader = CreateRandomReader();
+            Reader nonExistReader = randomReader;
+            Reader nullReader = null;
+
+            var notFoundReaderException =
+                new NotFoundReaderException(nonExistReader.ReaderId);
+
+            var expectedReaderValidationException =
+                new ReaderValidationException(notFoundReaderException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectReaderByIdAsync(nonExistReader.ReaderId))
+                    .ReturnsAsync(nullReader);
+
+            // when
+            ValueTask<Reader> modifyReaderTask =
+                this.readerService.ModifyReaderAsync(nonExistReader);
+
+            ReaderValidationException actualReaderValidationException =
+                await Assert.ThrowsAsync<ReaderValidationException>(() =>
+                    modifyReaderTask.AsTask());
+
+            // then
+            actualReaderValidationException.Should()
+                .BeEquivalentTo(expectedReaderValidationException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectReaderByIdAsync(nonExistReader.ReaderId),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedReaderValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.UpdateReaderAsync(nonExistReader),
+                    Times.Never);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
