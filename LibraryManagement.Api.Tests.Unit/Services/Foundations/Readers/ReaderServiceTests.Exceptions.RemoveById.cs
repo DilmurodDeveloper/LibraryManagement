@@ -101,5 +101,47 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Readers
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnRemoveIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            Guid someReaderId = Guid.NewGuid();
+            var serviceException = new Exception();
+
+            var failedReaderServiceException =
+                new FailedReaderServiceException(serviceException);
+
+            var expectedReaderServiceException =
+                new ReaderServiceException(failedReaderServiceException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectReaderByIdAsync(It.IsAny<Guid>()))
+                    .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<Reader> removeReaderByIdTask =
+                this.readerService.RemoveReaderByIdAsync(someReaderId);
+
+            ReaderServiceException actualReaderServiceException =
+                await Assert.ThrowsAsync<ReaderServiceException>(() =>
+                    removeReaderByIdTask.AsTask());
+
+            // then
+            actualReaderServiceException.Should()
+                .BeEquivalentTo(expectedReaderServiceException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectReaderByIdAsync(It.IsAny<Guid>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedReaderServiceException))),
+                        Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
