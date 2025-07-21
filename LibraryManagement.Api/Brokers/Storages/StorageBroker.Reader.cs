@@ -14,5 +14,17 @@ namespace LibraryManagement.Api.Brokers.Storages
 
         public async ValueTask<Reader> InsertReaderAsync(Reader reader) =>
             await InsertAsync(reader);
+
+        public IQueryable<Reader> SelectAllReaders() =>
+            SelectAll<Reader>().Include(readers => readers.Books);
+
+        public async ValueTask<Reader> SelectReaderByIdAsync(Guid readerId)
+        {
+            var readerWithBooks = await SelectAll<Reader>()
+                .Include(reader => reader.Books)
+                .FirstOrDefaultAsync(c => c.ReaderId == readerId);
+
+            return readerWithBooks;
+        }
     }
 }
