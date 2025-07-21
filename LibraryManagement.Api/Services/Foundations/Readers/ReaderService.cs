@@ -3,6 +3,7 @@
 // Free To Use To Build Reliable Library Management Solutions
 //-----------------------------------------------------------
 
+using EFxceptions.Models.Exceptions;
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Readers;
@@ -61,6 +62,18 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
                 this.loggingBroker.LogCritical(readerDependencyException);
 
                 throw readerDependencyException;
+            }
+            catch (DuplicateKeyException duplicateKeyException)
+            {
+                var alreadyExistsReaderException =
+                    new AlreadyExistsReaderException(duplicateKeyException);
+
+                var readerDependencyValidationException =
+                    new ReaderDependencyValidationException(alreadyExistsReaderException);
+
+                this.loggingBroker.LogError(readerDependencyValidationException);
+
+                throw readerDependencyValidationException;
             }
         }
     }
