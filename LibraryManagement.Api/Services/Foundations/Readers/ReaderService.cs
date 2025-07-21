@@ -117,6 +117,18 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
 
                 throw readerDependencyException;
             }
+            catch (Exception exception)
+            {
+                var failedReaderServiceException =
+                    new FailedReaderServiceException(exception);
+
+                var readerServiceException =
+                    new ReaderServiceException(failedReaderServiceException);
+
+                this.loggingBroker.LogError(readerServiceException);
+
+                throw readerServiceException;
+            }
         }
     }
 }
