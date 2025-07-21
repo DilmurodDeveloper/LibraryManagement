@@ -29,6 +29,9 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
             }
         }
 
+        private static void ValidateReaderId(Guid readerId) =>
+            Validate((Rule: IsInvalid(readerId), Parameter: nameof(Reader.ReaderId)));
+
         private static dynamic IsInvalid(Guid id) => new
         {
             Condition = id == Guid.Empty,
