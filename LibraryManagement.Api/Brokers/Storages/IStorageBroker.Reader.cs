@@ -12,5 +12,6 @@ namespace LibraryManagement.Api.Brokers.Storages
         ValueTask<Reader> InsertReaderAsync(Reader reader);
         IQueryable<Reader> SelectAllReaders();
         ValueTask<Reader> SelectReaderByIdAsync(Guid readerId);
+        ValueTask<Reader> UpdateReaderAsync(Reader reader);
     }
 }
