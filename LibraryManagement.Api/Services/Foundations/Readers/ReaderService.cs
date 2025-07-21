@@ -64,7 +64,7 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
                     new ReaderValidationException(nullReaderException);
 
                 this.loggingBroker.LogError(readerValidationException);
-                
+
                 throw readerValidationException;
             }
         }
