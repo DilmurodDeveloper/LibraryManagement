@@ -13,5 +13,6 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
         IQueryable<Reader> RetrieveAllReaders();
         ValueTask<Reader> RetrieveReaderByIdAsync(Guid readerId);
         ValueTask<Reader> ModifyReaderAsync(Reader reader);
+        ValueTask<Reader> RemoveReaderByIdAsync(Guid readerId);
     }
 }
