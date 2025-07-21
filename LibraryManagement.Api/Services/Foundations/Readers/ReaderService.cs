@@ -6,6 +6,8 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Readers;
+using LibraryManagement.Api.Models.Foundations.Readers.Exceptions;
+using Microsoft.Data.SqlClient;
 
 namespace LibraryManagement.Api.Services.Foundations.Readers
 {
@@ -30,7 +32,24 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
             return await this.storageBroker.InsertReaderAsync(reader);
         });
 
-        public IQueryable<Reader> RetrieveAllReaders() =>
-            this.storageBroker.SelectAllReaders();
+        public IQueryable<Reader> RetrieveAllReaders()
+        {
+            try
+            {
+                return this.storageBroker.SelectAllReaders();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedReaderStorageException =
+                    new FailedReaderStorageException(sqlException);
+
+                var readerDependencyException =
+                    new ReaderDependencyException(failedReaderStorageException);
+
+                this.loggingBroker.LogCritical(readerDependencyException);
+
+                throw readerDependencyException;
+            }
+        }
     }
 }
