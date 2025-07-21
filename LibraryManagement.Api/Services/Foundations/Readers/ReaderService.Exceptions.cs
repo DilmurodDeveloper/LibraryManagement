@@ -14,6 +14,7 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
     public partial class ReaderService
     {
         private delegate ValueTask<Reader> ReturningReaderFunction();
+        private delegate IQueryable<Reader> ReturningReadersFunction();
 
         private async ValueTask<Reader> TryCatch(ReturningReaderFunction returningReaderFunction)
         {
@@ -42,6 +43,28 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
                     new AlreadyExistsReaderException(duplicateKeyException);
 
                 throw CreateAndLogDependencyValidationException(alreadyExistsReaderException);
+            }
+            catch (Exception exception)
+            {
+                var failedReaderServiceException =
+                    new FailedReaderServiceException(exception);
+
+                throw CreateAndLogServiceException(failedReaderServiceException);
+            }
+        }
+
+        private IQueryable<Reader> TryCatch(ReturningReadersFunction returningReadersFunction)
+        {
+            try
+            {
+                return returningReadersFunction();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedReaderStorageException =
+                    new FailedReaderStorageException(sqlException);
+
+                throw CreateAndLogCriticalDependencyException(failedReaderStorageException);
             }
             catch (Exception exception)
             {
