@@ -7,6 +7,7 @@ using FluentAssertions;
 using LibraryManagement.Api.Models.Foundations.Readers;
 using LibraryManagement.Api.Models.Foundations.Readers.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Readers
@@ -46,6 +47,54 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Readers
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogCritical(It.Is(SameExceptionAs(
+                    expectedReaderDependencyException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectReaderByIdAsync(readerId),
+                    Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.UpdateReaderAsync(someReader),
+                    Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyExceptionOnModifyIfDatabaseUpdateExceptionOccursAndLogItAsync()
+        {
+            // given
+            Reader randomReader = CreateRandomReader();
+            Reader someReader = randomReader;
+            Guid readerId = someReader.ReaderId;
+            var databaseUpdateException = new DbUpdateException();
+
+            var failedReaderStorageException =
+                new FailedReaderStorageException(databaseUpdateException);
+
+            var expectedReaderDependencyException =
+                new ReaderDependencyException(failedReaderStorageException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectReaderByIdAsync(readerId))
+                    .Throws(databaseUpdateException);
+
+            // when
+            ValueTask<Reader> modifyReaderTask =
+                this.readerService.ModifyReaderAsync(someReader);
+
+            ReaderDependencyException actualReaderDependencyException =
+                await Assert.ThrowsAsync<ReaderDependencyException>(() =>
+                    modifyReaderTask.AsTask());
+
+            // then
+            actualReaderDependencyException.Should()
+                .BeEquivalentTo(expectedReaderDependencyException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
                     expectedReaderDependencyException))),
                         Times.Once);
 
