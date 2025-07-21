@@ -3,12 +3,9 @@
 // Free To Use To Build Reliable Library Management Solutions
 //-----------------------------------------------------------
 
-using EFxceptions.Models.Exceptions;
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Readers;
-using LibraryManagement.Api.Models.Foundations.Readers.Exceptions;
-using Microsoft.Data.SqlClient;
 
 namespace LibraryManagement.Api.Services.Foundations.Readers
 {
@@ -25,68 +22,12 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<Reader> AddReaderAsync(Reader reader)
+        public ValueTask<Reader> AddReaderAsync(Reader reader) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateReaderOnAdd(reader);
+            ValidateReaderOnAdd(reader);
 
-                return await this.storageBroker.InsertReaderAsync(reader);
-            }
-            catch (NullReaderException nullReaderException)
-            {
-                var readerValidationException =
-                    new ReaderValidationException(nullReaderException);
-
-                this.loggingBroker.LogError(readerValidationException);
-
-                throw readerValidationException;
-            }
-            catch (InvalidReaderException invalidReaderException)
-            {
-                var readerValidationException =
-                    new ReaderValidationException(invalidReaderException);
-
-                this.loggingBroker.LogError(readerValidationException);
-
-                throw readerValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedReaderStorageException =
-                    new FailedReaderStorageException(sqlException);
-
-                var readerDependencyException =
-                    new ReaderDependencyException(failedReaderStorageException);
-
-                this.loggingBroker.LogCritical(readerDependencyException);
-
-                throw readerDependencyException;
-            }
-            catch (DuplicateKeyException duplicateKeyException)
-            {
-                var alreadyExistsReaderException =
-                    new AlreadyExistsReaderException(duplicateKeyException);
-
-                var readerDependencyValidationException =
-                    new ReaderDependencyValidationException(alreadyExistsReaderException);
-
-                this.loggingBroker.LogError(readerDependencyValidationException);
-
-                throw readerDependencyValidationException;
-            }
-            catch (Exception exception)
-            {
-                var failedReaderServiceException =
-                    new FailedReaderServiceException(exception);
-
-                var readerServiceException =
-                    new ReaderServiceException(failedReaderServiceException);
-
-                this.loggingBroker.LogError(readerServiceException);
-
-                throw readerServiceException;
-            }
-        }
+            return await this.storageBroker.InsertReaderAsync(reader);
+        });
     }
 }
