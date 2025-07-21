@@ -8,6 +8,7 @@ using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Readers;
 using LibraryManagement.Api.Models.Foundations.Readers.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagement.Api.Services.Foundations.Readers
 {
@@ -97,6 +98,18 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
                     new ReaderDependencyException(failedReaderStorageException);
 
                 this.loggingBroker.LogCritical(readerDependencyException);
+
+                throw readerDependencyException;
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedReaderStorageException =
+                    new FailedReaderStorageException(dbUpdateException);
+
+                var readerDependencyException =
+                    new ReaderDependencyException(failedReaderStorageException);
+
+                this.loggingBroker.LogError(readerDependencyException);
 
                 throw readerDependencyException;
             }
