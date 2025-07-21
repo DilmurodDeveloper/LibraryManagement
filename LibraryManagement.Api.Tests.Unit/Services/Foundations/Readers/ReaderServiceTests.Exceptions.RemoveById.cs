@@ -1,0 +1,62 @@
+﻿//-----------------------------------------------------------
+// Copyright (c) Coalition of Good-Hearted Engineers
+// Free To Use To Build Reliable Library Management Solutions
+//-----------------------------------------------------------
+
+using FluentAssertions;
+using LibraryManagement.Api.Models.Foundations.Readers;
+using LibraryManagement.Api.Models.Foundations.Readers.Exceptions;
+using Microsoft.EntityFrameworkCore;
+using Moq;
+
+namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Readers
+{
+    public partial class ReaderServiceTests
+    {
+        [Fact]
+        public async Task ShouldThrowDependencyValidationOnRemoveIfDatabaseUpdateConcurrencyErrorOccursAndLogItAsync()
+        {
+            // given
+            Guid someReaderId = Guid.NewGuid();
+            var dbUpdateConcurrencyException = new DbUpdateConcurrencyException();
+
+            var lockedReaderException =
+                new LockedReaderException(dbUpdateConcurrencyException);
+
+            var expectedReaderDependencyValidationException =
+                new ReaderDependencyValidationException(lockedReaderException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectReaderByIdAsync(It.IsAny<Guid>()))
+                    .ThrowsAsync(dbUpdateConcurrencyException);
+
+            // when
+            ValueTask<Reader> removeReaderById =
+                this.readerService.RemoveReaderByIdAsync(someReaderId);
+
+            ReaderDependencyValidationException actualReaderDependencyValidationException =
+                await Assert.ThrowsAsync<ReaderDependencyValidationException>(() =>
+                    removeReaderById.AsTask());
+
+            // then
+            actualReaderDependencyValidationException.Should()
+                .BeEquivalentTo(expectedReaderDependencyValidationException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectReaderByIdAsync(It.IsAny<Guid>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedReaderDependencyValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.DeleteReaderAsync(It.IsAny<Reader>()),
+                    Times.Never);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+    }
+}
