@@ -6,6 +6,7 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Services.Foundations.Books;
+using LibraryManagement.Api.Services.Foundations.ReaderBooks;
 using LibraryManagement.Api.Services.Foundations.Readers;
 using Microsoft.OpenApi.Models;
 
@@ -22,6 +23,7 @@ builder.Services.AddTransient<IStorageBroker, StorageBroker>();
 builder.Services.AddTransient<ILoggingBroker, LoggingBroker>();
 builder.Services.AddTransient<IBookService, BookService>();
 builder.Services.AddTransient<IReaderService, ReaderService>();
+builder.Services.AddTransient<IReaderBookService, ReaderBookService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
