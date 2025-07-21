@@ -6,6 +6,7 @@
 using FluentAssertions;
 using LibraryManagement.Api.Models.Foundations.Readers;
 using LibraryManagement.Api.Models.Foundations.Readers.Exceptions;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
@@ -54,6 +55,48 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Readers
             this.storageBrokerMock.Verify(broker =>
                 broker.DeleteReaderAsync(It.IsAny<Reader>()),
                     Times.Never);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyExceptionOnRemoveWhenSqlExceptionOccursAndLogItAsync()
+        {
+            // given
+            Guid someLocationId = Guid.NewGuid();
+            SqlException sqlException = GetSqlError();
+
+            var failedReaderStorageException =
+                new FailedReaderStorageException(sqlException);
+
+            var expectedReaderDependencyException =
+                new ReaderDependencyException(failedReaderStorageException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectReaderByIdAsync(It.IsAny<Guid>()))
+                    .ThrowsAsync(sqlException);
+
+            // when
+            ValueTask<Reader> deleteReaderTask =
+                this.readerService.RemoveReaderByIdAsync(someLocationId);
+
+            ReaderDependencyException actualReaderDependencyException =
+                await Assert.ThrowsAsync<ReaderDependencyException>(() =>
+                    deleteReaderTask.AsTask());
+
+            // then
+            actualReaderDependencyException.Should()
+                .BeEquivalentTo(expectedReaderDependencyException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectReaderByIdAsync(It.IsAny<Guid>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogCritical(It.Is(SameExceptionAs(
+                    expectedReaderDependencyException))),
+                        Times.Once);
 
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
