@@ -6,6 +6,7 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Readers;
+using LibraryManagement.Api.Models.Foundations.Readers.Exceptions;
 
 namespace LibraryManagement.Api.Services.Foundations.Readers
 {
@@ -48,10 +49,24 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
 
         public async ValueTask<Reader> ModifyReaderAsync(Reader reader)
         {
-            Reader maybeReader =
-                await this.storageBroker.SelectReaderByIdAsync(reader.ReaderId);
+            try
+            {
+                ValidateReaderNotNull(reader);
 
-            return await this.storageBroker.UpdateReaderAsync(reader);
+                Reader maybeReader =
+                    await this.storageBroker.SelectReaderByIdAsync(reader.ReaderId);
+
+                return await this.storageBroker.UpdateReaderAsync(reader);
+            }
+            catch (NullReaderException nullReaderException)
+            {
+                var readerValidationException =
+                    new ReaderValidationException(nullReaderException);
+
+                this.loggingBroker.LogError(readerValidationException);
+                
+                throw readerValidationException;
+            }
         }
     }
 }
