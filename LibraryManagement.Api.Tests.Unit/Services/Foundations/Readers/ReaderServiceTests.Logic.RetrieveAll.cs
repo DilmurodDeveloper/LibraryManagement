@@ -18,7 +18,7 @@ namespace LibraryManagement.Api.Tests.Unit.Services.Foundations.Readers
             // given
             IQueryable<Reader> randomReader = CreateRandomReaders();
             IQueryable<Reader> storageReader = randomReader;
-            IQueryable<Reader> expectedReader = storageReader;
+            IQueryable<Reader> expectedReader = storageReader.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectAllReaders())
