@@ -46,7 +46,12 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
             return maybeReader;
         });
 
-        public ValueTask<Reader> ModifyReaderAsync(Reader reader) =>
-            throw new NotImplementedException();
+        public async ValueTask<Reader> ModifyReaderAsync(Reader reader)
+        {
+            Reader maybeReader =
+                await this.storageBroker.SelectReaderByIdAsync(reader.ReaderId);
+
+            return await this.storageBroker.UpdateReaderAsync(reader);
+        }
     }
 }
