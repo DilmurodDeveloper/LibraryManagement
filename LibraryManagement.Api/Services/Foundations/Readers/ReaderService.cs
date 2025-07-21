@@ -40,12 +40,26 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
             {
                 ValidateReaderId(readerId);
 
-                return await this.storageBroker.SelectReaderByIdAsync(readerId);
+                Reader maybeReader =
+                    await this.storageBroker.SelectReaderByIdAsync(readerId);
+
+                ValidateStorageReader(maybeReader, readerId);
+
+                return maybeReader;
             }
             catch (InvalidReaderException invalidReaderException)
             {
                 var readerValidationException =
                     new ReaderValidationException(invalidReaderException);
+
+                this.loggingBroker.LogError(readerValidationException);
+
+                throw readerValidationException;
+            }
+            catch (NotFoundReaderException notFoundReaderException)
+            {
+                var readerValidationException =
+                    new ReaderValidationException(notFoundReaderException);
 
                 this.loggingBroker.LogError(readerValidationException);
 
