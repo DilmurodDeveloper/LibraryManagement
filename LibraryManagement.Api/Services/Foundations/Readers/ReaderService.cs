@@ -6,8 +6,6 @@
 using LibraryManagement.Api.Brokers.Loggings;
 using LibraryManagement.Api.Brokers.Storages;
 using LibraryManagement.Api.Models.Foundations.Readers;
-using LibraryManagement.Api.Models.Foundations.Readers.Exceptions;
-using Microsoft.Data.SqlClient;
 
 namespace LibraryManagement.Api.Services.Foundations.Readers
 {
@@ -35,61 +33,17 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
         public IQueryable<Reader> RetrieveAllReaders() =>
             TryCatch(() => this.storageBroker.SelectAllReaders());
 
-        public async ValueTask<Reader> RetrieveReaderByIdAsync(Guid readerId)
+        public ValueTask<Reader> RetrieveReaderByIdAsync(Guid readerId) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateReaderId(readerId);
+            ValidateReaderId(readerId);
 
-                Reader maybeReader =
-                    await this.storageBroker.SelectReaderByIdAsync(readerId);
+            Reader maybeReader =
+                await this.storageBroker.SelectReaderByIdAsync(readerId);
 
-                ValidateStorageReader(maybeReader, readerId);
+            ValidateStorageReader(maybeReader, readerId);
 
-                return maybeReader;
-            }
-            catch (InvalidReaderException invalidReaderException)
-            {
-                var readerValidationException =
-                    new ReaderValidationException(invalidReaderException);
-
-                this.loggingBroker.LogError(readerValidationException);
-
-                throw readerValidationException;
-            }
-            catch (NotFoundReaderException notFoundReaderException)
-            {
-                var readerValidationException =
-                    new ReaderValidationException(notFoundReaderException);
-
-                this.loggingBroker.LogError(readerValidationException);
-
-                throw readerValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedReaderStorageException =
-                    new FailedReaderStorageException(sqlException);
-
-                var readerDependencyException =
-                    new ReaderDependencyException(failedReaderStorageException);
-
-                this.loggingBroker.LogCritical(readerDependencyException);
-
-                throw readerDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedReaderServiceException =
-                    new FailedReaderServiceException(exception);
-
-                var readerServiceException =
-                    new ReaderServiceException(failedReaderServiceException);
-
-                this.loggingBroker.LogError(readerServiceException);
-
-                throw readerServiceException;
-            }
-        }
+            return maybeReader;
+        });
     }
 }
