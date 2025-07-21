@@ -22,7 +22,7 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<Reader> AddReaderAsync(Reader reader) =>
-            throw new NotImplementedException();
+        public async ValueTask<Reader> AddReaderAsync(Reader reader) =>
+            await this.storageBroker.InsertReaderAsync(reader);
     }
 }
