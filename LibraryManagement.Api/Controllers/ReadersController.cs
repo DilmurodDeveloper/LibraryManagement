@@ -54,5 +54,25 @@ namespace LibraryManagement.Api.Controllers
                 return InternalServerError(readerServiceException.InnerException);
             }
         }
+
+        [HttpGet("all")]
+        public ActionResult<IQueryable<Reader>> GetAllReaders()
+        {
+            try
+            {
+                IQueryable<Reader> allReaders =
+                    this.readerService.RetrieveAllReaders();
+
+                return Ok(allReaders);
+            }
+            catch (ReaderDependencyException readerDependencyException)
+            {
+                return InternalServerError(readerDependencyException.InnerException);
+            }
+            catch (ReaderServiceException readerServiceException)
+            {
+                return InternalServerError(readerServiceException.InnerException);
+            }
+        }
     }
 }
