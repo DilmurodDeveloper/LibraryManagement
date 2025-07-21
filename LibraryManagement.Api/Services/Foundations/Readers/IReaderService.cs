@@ -10,5 +10,7 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
     public interface IReaderService
     {
         ValueTask<Reader> AddReaderAsync(Reader reader);
+        IQueryable<Reader> RetrieveAllReaders();
+        ValueTask<Reader> RetrieveReaderByIdAsync(Guid readerId);
     }
 }

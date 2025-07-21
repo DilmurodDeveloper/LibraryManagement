@@ -29,5 +29,21 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
 
             return await this.storageBroker.InsertReaderAsync(reader);
         });
+
+        public IQueryable<Reader> RetrieveAllReaders() =>
+            TryCatch(() => this.storageBroker.SelectAllReaders());
+
+        public ValueTask<Reader> RetrieveReaderByIdAsync(Guid readerId) =>
+        TryCatch(async () =>
+        {
+            ValidateReaderId(readerId);
+
+            Reader maybeReader =
+                await this.storageBroker.SelectReaderByIdAsync(readerId);
+
+            ValidateStorageReader(maybeReader, readerId);
+
+            return maybeReader;
+        });
     }
 }
