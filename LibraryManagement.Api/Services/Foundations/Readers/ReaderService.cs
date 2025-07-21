@@ -32,5 +32,8 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
 
         public IQueryable<Reader> RetrieveAllReaders() =>
             TryCatch(() => this.storageBroker.SelectAllReaders());
+
+        public ValueTask<Reader> RetrieveReaderByIdAsync(Guid readerId) =>
+            throw new NotImplementedException();
     }
 }
