@@ -27,7 +27,7 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
         {
             try
             {
-                ValidateReaderNotNull(reader);
+                ValidateReaderOnAdd(reader);
 
                 return await this.storageBroker.InsertReaderAsync(reader);
             }
@@ -35,6 +35,15 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
             {
                 var readerValidationException =
                     new ReaderValidationException(nullReaderException);
+
+                this.loggingBroker.LogError(readerValidationException);
+
+                throw readerValidationException;
+            }
+            catch (InvalidReaderException invalidReaderException)
+            {
+                var readerValidationException =
+                    new ReaderValidationException(invalidReaderException);
 
                 this.loggingBroker.LogError(readerValidationException);
 
