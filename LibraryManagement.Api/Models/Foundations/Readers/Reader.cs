@@ -3,6 +3,7 @@
 // Free To Use To Build Reliable Library Management Solutions
 //-----------------------------------------------------------
 
+using System.Text.Json.Serialization;
 using LibraryManagement.Api.Models.Foundations.Books;
 
 namespace LibraryManagement.Api.Models.Foundations.Readers
@@ -13,6 +14,9 @@ namespace LibraryManagement.Api.Models.Foundations.Readers
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTimeOffset DateOfBirth { get; set; }
-        public List<Book> Books { get; set; }
+
+        [JsonIgnore]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public List<Book> Books { get; set; } = new();
     }
 }
