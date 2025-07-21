@@ -29,5 +29,8 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
 
             return await this.storageBroker.InsertReaderAsync(reader);
         });
+
+        public IQueryable<Reader> RetrieveAllReaders() =>
+            throw new NotImplementedException();
     }
 }
