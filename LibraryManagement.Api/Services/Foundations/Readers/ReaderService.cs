@@ -45,5 +45,8 @@ namespace LibraryManagement.Api.Services.Foundations.Readers
 
             return maybeReader;
         });
+
+        public ValueTask<Reader> ModifyReaderAsync(Reader reader) =>
+            throw new NotImplementedException();
     }
 }
