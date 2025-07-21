@@ -26,5 +26,8 @@ namespace LibraryManagement.Api.Brokers.Storages
 
             return readerWithBooks;
         }
+
+        public async ValueTask<Reader> UpdateReaderAsync(Reader reader) =>
+            await UpdateAsync(reader);
     }
 }
